@@ -1,0 +1,8 @@
+
+{
+    "config": ["config/default_parameters.json", "config/parameters.json"],
+    "build": ["run.py"],
+    "library": ["src"],
+    "notebook": ["src/data/checkpoint_2.ipynb"],
+    "targets": ["quality_control","adapter_trimming","gene_counts"]
+}
