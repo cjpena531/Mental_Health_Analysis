@@ -1,8 +1,11 @@
 
 {
-    "": "",
-    "": "",
-    "": "",
-    "": "",
+    
+    "genes" : ""
+    "num_bootstraps" : 100,
+    "idx" : "/datasets/srp073813/reference/kallisto_transcripts.idx",
+    "drop_samples" : false,
+    "adapter_sequence" : "AACCGGTT",
+    "fast_out_path" : "src/data/fastqc_results/"
     
 }
