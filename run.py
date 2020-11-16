@@ -1,9 +1,16 @@
 import os 
 import json
+import sys
+sys.path.insert(0,sys.path[0] +'/src')
+from etl import *
 
-lst = os.listdir('/datasets/srp073813')
-
-def get_names(lst):
-    with open('names.txt', 'w') as f:
-        for item in lst:
-            f.write('%s\n' % item)
+def main():
+       
+    dictionary = json.load(open("config/default_parameters.json"))
+    subset = get_subset(dictionary['read_1'],dictionary['read_2'],dictionary['subset_size'])
+    fastqc(dictionary,subset)
+    cutadapt(dictionary,subset)
+    kallisto(dictionary,subset)
+    
+if __name__ == '__main__':
+    main()

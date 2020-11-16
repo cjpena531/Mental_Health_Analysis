@@ -3,7 +3,7 @@
     
     "read_1" : "/datasets/srp073813/*_1.fastq.gz",
     "read_2" : "/datasets/srp073813/*_2.fastq.gz",
-    "subset_size" : 3,
+    "subset_size" : 1,
     "num_bootstraps" : 0,
     "idx" : "/datasets/srp073813/reference/kallisto_transcripts.idx",
     "drop_samples" : false,
