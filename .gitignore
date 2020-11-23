@@ -1,5 +1,5 @@
 *.fastq.gz
-!testdata/*.gz
+!test/testdata/*.gz
 *.h5
 *.tsv
 *.txt
