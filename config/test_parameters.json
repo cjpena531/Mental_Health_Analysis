@@ -1,0 +1,13 @@
+
+{
+    
+    "read_1" : "test/testdata/*_1.fastq.gz",
+    "read_2" : "test/testdata/*_2.fastq.gz",
+    "subset_size" : 10,
+    "num_bootstraps" : 0,
+    "idx" : "/datasets/srp073813/reference/kallisto_transcripts.idx",
+    "drop_samples" : false,
+    "adapter_sequence" : "AACCGGTT",
+    "fast_out_path" : "src/data/fastqc_results/"
+    
+}

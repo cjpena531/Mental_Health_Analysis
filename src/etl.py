@@ -1,6 +1,8 @@
 import os
 import json
 import glob
+import numpy as np 
+import pandas as pd
 
 
 def get_subset(read1, read2, size):
@@ -9,7 +11,7 @@ def get_subset(read1, read2, size):
     
     paired_end_reads = []
     for read in r2:
-        sample = read.split("/")[3].split("_")[0]
+        sample = read.split("/")[-1].split("_")[0]
         if sample in "".join(r1):
             paired_end_reads.append(read)
         
@@ -34,6 +36,7 @@ def fastqc(dictionary,subset):
 
     os.system('unzip \*.zip -d unzipped')
     os.chdir('..')
+    return
     
 def check_fast_qc(dictionary):
     #Parse and check for bad samples
@@ -62,13 +65,14 @@ def cutadapt(dictionary,subset):
         s2 = sample
         f2 = s2.split('/')[-1]
 
-        command1 = f"cutadapt -j 4 -a {dictionary['adapter_sequence']} -o {f1} {s1}"
-        command2 = f"cutadapt -j 4 -a {dictionary['adapter_sequence']} -o {f2} {s2}"
+        command1 = f"cutadapt -j 4 -a {dictionary['adapter_sequence']} -o {f1} ../../../{s1}"
+        command2 = f"cutadapt -j 4 -a {dictionary['adapter_sequence']} -o {f2} ../../../{s2}"
 
         os.system(command1)
         os.system(command2)
         
     os.chdir('..')
+    return
 
 def kallisto(dictionary,subset):
     os.chdir('kallisto')
@@ -82,7 +86,23 @@ def kallisto(dictionary,subset):
         if not os.path.isdir(outpath):
             os.system('mkdir ' + outpath)
 
-        command = f"/opt/kallisto_linux-v0.42.4/kallisto quant -i {dictionary['idx']} -o {outpath} -b {dictionary['num_bootstraps']} {s1} {s2}"
+        command = f"/opt/kallisto_linux-v0.42.4/kallisto quant -i {dictionary['idx']} -o {outpath} -b {dictionary['num_bootstraps']} ../../../{s1} ../../../{s2}"
 
         os.system(command)
     os.chdir('..')
+    return
+    
+def gene_counts(dictionary,subset):
+    
+    tsvs = glob.glob("kallisto/SRR*/*.tsv")
+    print(tsvs)
+    gene_counts = pd.read_csv(tsvs[0],sep='\t')
+    gene_counts = gene_counts[['target_id','est_counts']].rename(columns={'est_counts': tsvs[0].split('/')[-2]})
+    
+    for tsv in tsvs[1:]:
+        df = pd.read_csv(tsv,sep='\t')
+        df = df[['est_counts','target_id']].rename(columns={'est_counts': tsv.split('/')[-2]})
+        gene_counts = gene_counts.join(df.set_index('target_id'), on='target_id')
+        
+    gene_counts.to_csv('kallisto/gene_counts.csv',index=False)
+    return
