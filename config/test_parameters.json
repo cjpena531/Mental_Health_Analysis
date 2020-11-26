@@ -1,8 +1,8 @@
 
 {
     
-    "read_1" : "test/testdata/*_1.fastq.gz",
-    "read_2" : "test/testdata/*_2.fastq.gz",
+    "read_1" : "test/testdata/*_1.fq",
+    "read_2" : "test/testdata/*_2.fq",
     "subset_size" : 10,
     "num_bootstraps" : 0,
     "idx" : "/datasets/srp073813/reference/kallisto_transcripts.idx",

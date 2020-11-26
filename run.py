@@ -11,6 +11,7 @@ def main():
     
     if (len(args) > 1):
         if (args[1] == "test"):
+            print("yes")
             dictionary = json.load(open("config/test_parameters.json"))
     else:
         dictionary = json.load(open("config/parameters.json"))
