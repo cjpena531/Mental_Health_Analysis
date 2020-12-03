@@ -1,13 +1,13 @@
 
 {
     
-    "read_1" : "datasets/srp073813/*_1.fastq.gz",
-    "read_2" : "datasets/srp073813/*_2.fastq.gz",
-    "subset_size" : 1,
-    "num_bootstraps" : 0,
+    "read_1" : "/datasets/srp073813/*_1.fastq.gz",
+    "read_2" : "/datasets/srp073813/*_2.fastq.gz",
+    "subset_size" : 352,
+    "num_bootstraps" : 8,
     "idx" : "/datasets/srp073813/reference/kallisto_transcripts.idx",
     "drop_samples" : false,
     "adapter_sequence" : "AACCGGTT",
-    "fast_out_path" : "src/data/fastqc_results/"
+    "fast_out_path" : "data/fastqc_results/"
     
 }
