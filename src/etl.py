@@ -4,6 +4,8 @@ import glob
 import numpy as np 
 import pandas as pd
 import subprocess
+import matplotlib
+#from matplotlib_venn import venn2
 
 
 def create_folders():
@@ -34,7 +36,7 @@ def get_subset(read1, read2, size):
         if sample in "".join(r1):
             paired_end_reads.append(read)
         
-    subset = paired_end_reads[100:117]
+    subset = paired_end_reads[:size]
     return subset
 
 def fastqc(dictionary,subset):
@@ -157,18 +159,8 @@ def deseq_preprocessing():
 def make_corrplot_data():
     
     frame = pd.DataFrame()
-    col = pd.read_csv("data/corrplot/dlpfc_b.csv", index_col=0)['log2FoldChange']
-    if len(frame) == 0:
-        frame = pd.DataFrame(col)
-    else:
-        frame[]
-        
-    frame = pd.DataFrame(col)
-    frame = frame.rename(columns={"log2FoldChange": "dlpfc_b"})
-    
-    frame = pd.DataFrame()
-    for i in os.listdir('corrplot'):
-        col = pd.read_csv("corrplot/" + i)['log2FoldChange']
+    for i in os.listdir('data/corrplot'):
+        col = pd.read_csv("data/corrplot/" + i)['log2FoldChange']
         name = i[:-4]
         if len(frame) == 0:
             frame = pd.DataFrame(col)
@@ -182,3 +174,62 @@ def make_corrplot_data():
 def deseq_analysis():
     subprocess.call(['/opt/conda/bin/Rscript',  '--vanilla', 'src/DESeq_Final.r'])
     return
+
+def make_venn_data():
+    b = pd.read_csv('data/corrplot/ancg_b.csv')
+    m = pd.read_csv('data/corrplot/ancg_m.csv')
+    s = pd.read_csv('data/corrplot/ancg_s.csv')
+    
+    b = b[b['pvalue'] < 0.05]
+    m = m[m['pvalue'] < 0.05]
+    s = s[s['pvalue'] < 0.05]
+    
+    b.to_csv("data/p_val_ancg_b.csv")
+    m.to_csv("data/p_val_ancg_m.csv")
+    s.to_csv("data/p_val_ancg_s.csv")
+    
+    return 
+
+def make_venn():
+    b = pd.read_csv("data/p_val_ancg_b.csv")
+    m = pd.read_csv("data/p_val_ancg_m.csv")
+    s = pd.read_csv("data/p_val_ancg_s.csv")
+
+    s = s.rename(columns={"Unnamed: 0": "join"})
+    m = m.rename(columns={"Unnamed: 0": "join"})
+    b = b.rename(columns={"Unnamed: 0": "join"})
+
+    joined = b.set_index('join').join(m.set_index('join'),how="outer", lsuffix='_b', rsuffix='_m')
+    joined = s.set_index('join').join(joined, how="outer")
+    #joined = b.join(m, on="Unnamed:0", how="outer", lsuffix='_b', rsuffix='_m')
+    joined = joined[['baseMean', 'baseMean_b', 'baseMean_m']]
+
+    just_s = joined[(joined['baseMean'].isnull() == False) & 
+                    (joined['baseMean_b'].isnull() == True) & 
+                    (joined['baseMean_m'].isnull() == True)]
+    just_b = joined[(joined['baseMean'].isnull() == True) & 
+                    (joined['baseMean_b'].isnull() == False) & 
+                    (joined['baseMean_m'].isnull() == True)]
+    just_m = joined[(joined['baseMean'].isnull() == True) & 
+                    (joined['baseMean_b'].isnull() == True) & 
+                    (joined['baseMean_m'].isnull() == False)]
+
+    sm = joined[(joined['baseMean'].isnull() == False) & 
+                    (joined['baseMean_b'].isnull() == True) & 
+                    (joined['baseMean_m'].isnull() == False)]
+    bm = joined[(joined['baseMean'].isnull() == True) & 
+                    (joined['baseMean_b'].isnull() == False) & 
+                    (joined['baseMean_m'].isnull() == False)]
+    sb = joined[(joined['baseMean'].isnull() == False) & 
+                    (joined['baseMean_b'].isnull() == False) & 
+                    (joined['baseMean_m'].isnull() == True)]
+    sbm = joined[(joined['baseMean'].isnull() == False) & 
+                    (joined['baseMean_b'].isnull() == False) & 
+                    (joined['baseMean_m'].isnull() == False)]
+
+    venn3(subsets = (len(just_s), len(just_b), len(sb), len(just_m), len(sm), len(bm), len(sbm)), 
+          set_labels = ('Schizophrenia', 'Bipolar Disorder', 'Major Depression'))
+
+    matplotlib.pyplot.savefig('plots/venn.png')
+
+    return 
