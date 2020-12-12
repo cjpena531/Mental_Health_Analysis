@@ -3,6 +3,7 @@ import json
 import glob
 import numpy as np 
 import pandas as pd
+import subprocess
 
 
 def create_folders():
@@ -31,7 +32,7 @@ def get_subset(read1, read2, size):
         if sample in "".join(r1):
             paired_end_reads.append(read)
         
-    subset = paired_end_reads[:size]
+    subset = paired_end_reads[100:117]
     return subset
 
 def fastqc(dictionary,subset):
@@ -96,7 +97,7 @@ def kallisto(dictionary,subset):
         if not os.path.isdir(outpath):
             os.system('mkdir ' + outpath)
 
-        command = f"/opt/kallisto_linux-v0.42.4/kallisto quant -i {dictionary['idx']} -o {outpath} -b {dictionary['num_bootstraps']} {s1} {s2}"
+        command = f"/opt/kallisto_linux-v0.42.4/kallisto quant -i {dictionary['idx']} -o {outpath} -b {dictionary['num_bootstraps']} -t {dictionary['num_bootstraps']} {s1} {s2}"
 
         os.system(command)
     return
@@ -104,7 +105,6 @@ def kallisto(dictionary,subset):
 def gene_counts(dictionary,subset):
     
     tsvs = glob.glob("data/kallisto/SRR*/*.tsv")
-    print(tsvs)
     gene_counts = pd.read_csv(tsvs[0],sep='\t')
     gene_counts = gene_counts[['target_id','est_counts']].rename(columns={'est_counts': tsvs[0].split('/')[-2]})
     
@@ -112,6 +112,19 @@ def gene_counts(dictionary,subset):
         df = pd.read_csv(tsv,sep='\t')
         df = df[['est_counts','target_id']].rename(columns={'est_counts': tsv.split('/')[-2]})
         gene_counts = gene_counts.join(df.set_index('target_id'), on='target_id')
-        
-    gene_counts.to_csv('data/gene_counts.csv',index=False)
+            
+    names = pd.read_csv('/datasets/srp073813/reference/Gene_Naming.csv')
+    names = names.loc[(names['chr'] != 'chrY') & (names['chr'] != 'chrX')]
+    
+    gene_counts = gene_counts.loc[gene_counts['target_id'].str.startswith('NM_')]
+    joined = pd.merge(names, gene_counts, how='left', left_on='refseq', right_on='target_id')
+    
+    filtered = joined.filter(regex='^(SRR*|refseq$)', axis=1).dropna()
+    filtered.loc[:,filtered.columns[1:]] = filtered.filter(regex='^(SRR*)', axis=1).round().astype('int64') + 1
+    filtered.to_csv('data/filtered_gene_counts.csv',index=False)
+    
     return
+
+def pca():
+    subprocess.call(['/opt/conda/bin/Rscript',  '--vanilla', 'pca.r'])
+    return 

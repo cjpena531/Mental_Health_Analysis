@@ -3,6 +3,8 @@ import json
 import sys
 sys.path.append('src')
 from etl import *
+import subprocess
+
 
 def main():
     
@@ -18,15 +20,16 @@ def main():
             print("cleaned!")
             return
     else:
-        print(os.listdir('/datasets'))
         dictionary = json.load(open("config/parameters.json"))
     
     create_folders()
     subset = get_subset(dictionary['read_1'],dictionary['read_2'],dictionary['subset_size'])
-    fastqc(dictionary,subset)
+    #fastqc(dictionary,subset)
     #cutadapt(dictionary,subset)
-    kallisto(dictionary,subset)
+    #kallisto(dictionary,subset)
     gene_counts(dictionary,subset)
+    pca()
+    
     
 if __name__ == '__main__':
     main()
