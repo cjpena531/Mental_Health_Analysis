@@ -15,6 +15,8 @@ def create_folders():
         os.system('mkdir data/cutadapt')
     if not os.path.isdir('data/kallisto'):
         os.system('mkdir data/kallisto')
+    if not os.path.isdir('data/corrplot'):
+        os.system('mkdir data/corrplot')
     return
 
 def clean():
@@ -150,3 +152,33 @@ def deseq_preprocessing():
 
             filter_counts.to_csv(counts_out)
             filter_col.to_csv(col_out)
+    return
+
+def make_corrplot_data():
+    
+    frame = pd.DataFrame()
+    col = pd.read_csv("data/corrplot/dlpfc_b.csv", index_col=0)['log2FoldChange']
+    if len(frame) == 0:
+        frame = pd.DataFrame(col)
+    else:
+        frame[]
+        
+    frame = pd.DataFrame(col)
+    frame = frame.rename(columns={"log2FoldChange": "dlpfc_b"})
+    
+    frame = pd.DataFrame()
+    for i in os.listdir('corrplot'):
+        col = pd.read_csv("corrplot/" + i)['log2FoldChange']
+        name = i[:-4]
+        if len(frame) == 0:
+            frame = pd.DataFrame(col)
+            frame = frame.rename(columns={"log2FoldChange": name})
+        else:
+            frame[name] = col
+            
+    frame.to_csv("data/log2folds.csv")
+    return 
+
+def deseq_analysis():
+    subprocess.call(['/opt/conda/bin/Rscript',  '--vanilla', 'src/DESeq_Final.r'])
+    return
