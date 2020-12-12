@@ -3,7 +3,7 @@
 This is a replication of the 2017 paper "Post-mortem molecular profiling of three psychiatric disorders" from the journal Genome Medicine.
 
 # Usage
-Please run the Docker image specified in the <code>env.json</code> config file. 
+Please run the Docker image specified in the <code>submission.json</code>. 
 
 Run the project on test data using the following command in the terminal:
 <code>python run.py test</code>
