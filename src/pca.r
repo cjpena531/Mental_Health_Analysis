@@ -1,6 +1,6 @@
 library("DESeq2")
 
-cts <- as.matrix(read.csv(file = "data/filtered.csv", row.names="refseq"))
+cts <- as.matrix(read.csv(file = "data/filtered_gene_counts.csv", row.names="refseq"))
 coldata <- read.csv("/datasets/srp073813/reference/SraRunTable.csv", row.names="Run")
 
 coldata <- coldata[,c("clinical_diagnosis","age_at_death", "Brain_pH", "post.mortem_interval")]

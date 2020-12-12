@@ -126,5 +126,27 @@ def gene_counts(dictionary,subset):
     return
 
 def pca():
-    subprocess.call(['/opt/conda/bin/Rscript',  '--vanilla', 'pca.r'])
+    subprocess.call(['/opt/conda/bin/Rscript',  '--vanilla', 'src/pca.r'])
     return 
+
+def deseq_preprocessing():
+    counts = pd.read_csv("data/filtered_gene_counts.csv")
+    coldata = pd.read_csv("/datasets/srp073813/reference/SraRunTable.csv")
+    
+    cols = pd.Series(coldata['source_name'].unique())
+
+    for i in ['AnCg','nAcc','DLPFC']:
+        group_cols = cols.loc[cols.str.startswith(i)].to_numpy()
+
+        for disorder in ['Major Depression','Bipolar Disorder','Schizophrenia']:
+            filter_col = coldata[(coldata['source_name'] == (i + "_Control")) | 
+                         (coldata['source_name'] == (i + "_" + disorder))]
+            runs = list(filter_col['Run'].unique())
+            runs = ['refseq'] + runs
+            filter_counts = counts[runs]
+
+            counts_out = "data/gc_" + i.lower() + "_" + (disorder.lower()[0])
+            col_out = "data/" + i.lower() + "_" + (disorder.lower()[0])
+
+            filter_counts.to_csv(counts_out)
+            filter_col.to_csv(col_out)
